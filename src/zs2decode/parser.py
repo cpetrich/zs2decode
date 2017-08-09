@@ -4,7 +4,7 @@ import gzip as _gzip
 import struct as _struct
 
 # Author: Chris Petrich
-# Copyright: Copyright 2015, Chris Petrich
+# Copyright: Copyright 2015,2016,2017, Chris Petrich
 # License: MIT
 
 #####################################
@@ -177,7 +177,9 @@ def _skip_past_data_aa(data_stream, start):
     """Minimal validation and skip past chunk data"""
     if ((_ord(data_stream[start])!=0xAA) or
         (_unpack1('H',data_stream[start+3:start+5]) != 0x8000)):
-        raise TypeError('Unexpected block format for 0xAA (0x%x) with marger 0x%x at 0x%x.' % (_ord(data_stream[start]),start))
+        raise TypeError('Unexpected block format for 0xAA (0x%x) with marker 0x%x at 0x%x.' % (_ord(data_stream[start]),
+                                                                                               _unpack1('H',data_stream[start+3:start+5]),
+                                                                                               start))
     char_count = _unpack1('H',data_stream[start+1:start+3])
     byte_length = char_count * 2
     return start+5+byte_length
@@ -659,7 +661,14 @@ def _single_as_double(presumed_single):
         # let's round down and see what happens
         # -> remove last digit behind decimal
         m = mantissa(value)[:-1].rstrip('0')
-        value = m+exponent(value)        
+        value = m+exponent(value)
+
+        try:
+            float_value = float(value)
+        except ValueError:
+            # generate output for debug
+            print('Attempt failed converting %r to float.' % value)
+            raise
         
         if _struct.pack('<f', float(value)) != start_code:
             value = good_value
