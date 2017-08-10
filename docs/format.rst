@@ -318,7 +318,7 @@ Chunk data of variable length are always encoded in a particular lists
 format. 
 Lists start with an indication of the number of items in the list. 
 This list length is encoded as 4-byte integer and may be ``0`` if no 
-list items follow. Bit 16 of the list length is ``0`` as this bit is
+list items follow. Bit 31 of the list length is ``0`` as this bit is
 used as a marker for strings. Hence, lists can have up to
 2,147,483,647 entries.
 The list length parameter is followed by exactly the number of list 
@@ -399,8 +399,8 @@ For example, data type code and chunk data of the string "Hi" would be:
  +--------+--------+--------+--------+--------+--------+--------+--------+--------+
  |        | Chunk Data                                                            |
  +        +--------+--------+--------+--------+--------+--------+--------+--------+
- | Data   | String          | String          |                 |                 |
- | type   | length          | marker          |   H             |    i            |
+ | Data   | String length with bit-31 marker  |                 |                 |
+ | type   |                                   |   H             |    i            |
  +========+========+========+========+========+========+========+========+========+
  | 0      | 1      | 2      | 3      | 4      | 5      | 6      | 7      | 8      |
  +--------+--------+--------+--------+--------+--------+--------+--------+--------+
