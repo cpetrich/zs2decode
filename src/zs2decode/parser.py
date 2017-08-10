@@ -176,7 +176,7 @@ def _skip_past_data_dd(data_stream, start):
 def _skip_past_data_aa(data_stream, start):
     """Minimal validation and skip past chunk data"""
     if ((_ord(data_stream[start])!=0xAA) or
-        (not _is_bit31_set(data_stream, start+1)):
+        (not _is_bit31_set(data_stream, start+1))):
         raise TypeError('Unexpected block format for 0xAA (0x%x) with length and string marker 0x%08x at 0x%x.' % (
             _ord(data_stream[start]), _unpack1('L',data_stream[start+1:start+5]), start))
     char_count = _unpack1('L',data_stream[start+1:start+5]) & 0x7FFFFFFF
