@@ -176,11 +176,10 @@ def _skip_past_data_dd(data_stream, start):
 def _skip_past_data_aa(data_stream, start):
     """Minimal validation and skip past chunk data"""
     if ((_ord(data_stream[start])!=0xAA) or
-        (_unpack1('H',data_stream[start+3:start+5]) != 0x8000)):
-        raise TypeError('Unexpected block format for 0xAA (0x%x) with marker 0x%x at 0x%x.' % (_ord(data_stream[start]),
-                                                                                               _unpack1('H',data_stream[start+3:start+5]),
-                                                                                               start))
-    char_count = _unpack1('H',data_stream[start+1:start+3])
+        (not _is_bit31_set(data_stream, start+1)):
+        raise TypeError('Unexpected block format for 0xAA (0x%x) with length and string marker 0x%08x at 0x%x.' % (
+            _ord(data_stream[start]), _unpack1('L',data_stream[start+1:start+5]), start))
+    char_count = _unpack1('L',data_stream[start+1:start+5]) & 0x7FFFFFFF
     byte_length = char_count * 2
     return start+5+byte_length
         
@@ -218,18 +217,6 @@ def _skip_past_number_type(data_stream, start):
         #   since we call this function to test IF this is a number
         return None
     return start+1+byte_length
-
-def _get_unicode_string_CLASSIC(data_stream, start=0, expected_string_marker=None):
-    """Try to get one unicode string, returns tupe of (string or None, index-after-string)"""
-    # Note: a string is a list of item length 2 where the MSB
-    #  of the list length is set to MSB=1
-    expected_string_marker = expected_string_marker or 0x8000 # always 0x8000, except in data record of QS_...
-    if 4+start>len(data_stream): return None, start # not enough bytes
-    length = _unpack1('H',data_stream[start:start+2])
-    if 4+length*2+start>len(data_stream): return None, start # not enough bytes    
-    marker = _unpack1('H',data_stream[start+2:start+4])
-    if marker != expected_string_marker: return None, start # missing marker
-    return u''.join([_chr(_unpack1('H',data_stream[start+4+2*i:start+4+2*i+2])) for i in range(length)]),start+4+length*2
 
 def _is_bit31_set(data_stream, start=0):
     """Test bit 31 counting from position "start"."""
@@ -288,7 +275,6 @@ def parse_chunks(chunks, level=None, debug=False):
         chunks = _parse_chunk_ee11_data_records(chunks, debug)
 
     return chunks
-
 
 def _parse_chunk_types(chunks):
     """Decode element data"""
