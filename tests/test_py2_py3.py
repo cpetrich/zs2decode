@@ -31,8 +31,9 @@ class Test(unittest.TestCase):
             zs2decode._skip_past_data_ee(b'xyz\xee\x04\xff\x01\x00\x00\x00abcdefg', 3)
     def test_skip_past_data_aa(self):
         self.assertEqual(zs2decode._skip_past_data_aa(b'xyz\xaa\x01\x00\x00\x80abcdefg', 3),10)
+        self.assertEqual(zs2decode._skip_past_data_aa(b'xyz\xaa\x01\x00\x01\x80abcdefg', 3),10+2*0x10000)
         with self.assertRaises(TypeError):
-            zs2decode._skip_past_data_aa(b'xyz\xaa\x01\x00\xff\x80abcdefg', 3)
+            zs2decode._skip_past_data_aa(b'xyz\xaa\x01\x00\x00\x7fabcdefg', 3)
     def test_skip_past_data_dd(self):
         self.assertEqual(zs2decode._skip_past_data_dd(b'xyz\xdd\x00abcdefg', 3),5)
         self.assertEqual(zs2decode._skip_past_data_dd(b'xyz\xdd\x02abcdefg', 3),7)
@@ -136,7 +137,6 @@ class Test(unittest.TestCase):
                          [['string', True],['string', True],['list', 'start'],['string', True],['direct', 'd', 8],['string', False],['list', 'end']])
                          
 if __name__=='__main__':
-    print('Running Python %i' % v)
     unittest.main()
     
     
