@@ -444,42 +444,41 @@ start with a 2-byte long header that specifies the type of data in
 the array, followed by a list as defined in 
 Section :ref:`section-data-list-definition`.
 
-There are only three different list data types defined as part of
+There are at least five different list data types defined as part of
 data type ``0xEE``, which are ``0x0000``,
-``0x0004``, ``0x0011``, and ``0x0016``.
-We refer to them as sub-types ``0x00``, 
-``0x04``, ``0x11``, and ``0x16``, 
-respectively, since the ``MSB`` of all of them is ``0``.
+``0x0004``, ``0x0005``, ``0x0011``, and ``0x0016``.
 
- +----------+----------+-----------+---------------------------------+
- | Data type| Sub-type |Byte-length| Type of list elements           |
- |          |          |of elements|                                 |
- +==========+==========+===========+=================================+
- | ``0xEE`` | ``0x00`` | n/a       | n/a: empty list                 |
- +----------+----------+-----------+---------------------------------+
- | ``0xEE`` | ``0x04`` | 4         | single-precision floating point |
- +----------+----------+-----------+---------------------------------+
- | ``0xEE`` | ``0x11`` | 1         | bytes of structured data record |
- +----------+----------+-----------+---------------------------------+
- | ``0xEE`` | ``0x16`` | 4         | integer or boolean              |
- +----------+----------+-----------+---------------------------------+
+ +----------+------------+-----------+---------------------------------+
+ | Data type|  Sub-type  |Byte-length| Type of list elements           |
+ |          |            |of elements|                                 |
+ +==========+============+===========+=================================+
+ | ``0xEE`` | ``0x0000`` | n/a       | n/a: empty list                 |
+ +----------+------------+-----------+---------------------------------+
+ | ``0xEE`` | ``0x0004`` | 4         | single-precision floating point |
+ +----------+------------+-----------+---------------------------------+
+ | ``0xEE`` | ``0x0005`` | 8         | double-precision floating point |
+ +----------+------------+-----------+---------------------------------+
+ | ``0xEE`` | ``0x0011`` | 1         | bytes of structured data record |
+ +----------+------------+-----------+---------------------------------+
+ | ``0xEE`` | ``0x0016`` | 4         | integer or boolean              |
+ +----------+------------+-----------+---------------------------------+
 
-The byte-list of sub-type ``0x11`` is a wrapper for a mixed-type 
+The byte-list of sub-type ``0x0011`` is a wrapper for a mixed-type
 data record whose interpretation depends on the chunk type
 (see Section :ref:`section-ee11`).
 This sub-type is used by the ``ZIMT`` script for measurement parameters 
 and settings, and to store the event audit log.
 
-Sub-type ``0x04`` is used to store measurement time series recorded by
+Sub-types ``0x0004`` and ``0x0005`` are used to store measurement time series recorded by
 the testing machine.
 
-Placeholder lists have sub-type ``0x00``, followed by an empty list.
+Placeholder lists have sub-type ``0x0000``, followed by an empty list.
 
-Sub-type ``0x16`` seems to be used only to hold boolean values, with
+Sub-type ``0x0016`` seems to be used only to hold boolean values, with
 ``0x00000000`` and ``0x00000001`` representing ``False`` and ``True``,
 respectively.
 
-For example, data type code and chunk data of a list of sub-type ``0x16``, 
+For example, data type code and chunk data of a list of sub-type ``0x0016``, 
 representing a list with one integer element of value ``0x12345678``, 
 would be:
 
