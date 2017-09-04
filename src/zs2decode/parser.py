@@ -189,9 +189,9 @@ def _skip_past_data_ee(data_stream, start):
         raise TypeError('Unexpected block format for 0xEE at 0x%x.' % (start))
     data_type = _unpack1('H',data_stream[start+1:start+3])
     try:
-        byte_length={0x11:1, 0x04:4, 0x16: 4, 0x00: 0}[data_type]
+        byte_length={0x11:1, 0x04:4, 0x05:8, 0x16: 4, 0x00: 0}[data_type]
     except KeyError:
-        raise TypeError('Unknown data type 0x%2x in block 0xEE at 0x%x.' % (data_type, start))
+        raise TypeError('Unknown data type 0x%02x in block 0xEE at 0x%x.' % (data_type, start))
     data_entries = _unpack1('L',data_stream[start+3:start+7])
     if (data_type == 0x00) and (data_entries != 0):
         raise ValueError('Expected empty list with data type EE-00 but found list of %i entries at 0x%x.' % (data_entries, start))
@@ -376,7 +376,7 @@ def _parse_data_ee_subtypes(data, debug=False):
        In debug mode, "-debug" may be appended to the type code,
        or unparsed data with type code "EE" may be returned."""
     sub_type = _unpack1('H',data[:2])
-    byte_lengths={0x11:1, 0x04:4, 0x16: 4, 0x00: 0}
+    byte_lengths={0x11:1, 0x04:4, 0x05:8, 0x16: 4, 0x00: 0}
     if (sub_type not in byte_lengths) and debug:
         return data[:], 'EE' # simply return un-interpreted
 
@@ -399,10 +399,11 @@ def _parse_data_ee_subtypes(data, debug=False):
     # get list elements        
     items, cont = _get_data_list(data, byte_length, 2)
     extra_data = data[cont:]
-
-    # 0x04 is single precision floats
-    if sub_type == 0x04:        
+    
+    if sub_type == 0x04: # 0x0004 is single precision floats
         interpreted_data=[_s2d(_unpack1('f',item)) for item in items]
+    elif sub_type == 0x05: # 0x0005 is double precision float
+        interpreted_data=[_unpack1('d',item) for item in items]
     elif sub_type == 0x16:
         interpreted_data=[_unpack1('L',item) for item in items]
     elif sub_type == 0x11:
