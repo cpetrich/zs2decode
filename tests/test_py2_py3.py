@@ -73,6 +73,8 @@ class Test(unittest.TestCase):
             # make sure we get an error if there are too few or too many bytes        
             self.assertEqual(zs2decode._parse_data_ee_subtypes(b'\x04\x00\x02\x00\x00\x00\xd8\xff@\xc3\xd8\xff@'),
                          ([-192.99939,-192.99939],u'EE04'))
+            self.assertEqual(zs2decode._parse_data_ee_subtypes(b'\x05\x00\x02\x00\x00\x00\x1b\xde\x83B\xca\xc0\xf3?\x1b\xde\x83B\xca\xc0\xf3?'),
+                         ([1.23456789, 1.23456789],u'EE05'))
             self.assertEqual(zs2decode._parse_data_ee_subtypes(b'\x00\x00\x00\x00\x00\x00X'),
                          ([],u'EE00'))
             self.assertEqual(zs2decode._parse_data_ee_subtypes(b'\x00\x00\x00\x00\x00'),
@@ -138,5 +140,3 @@ class Test(unittest.TestCase):
                          
 if __name__=='__main__':
     unittest.main()
-    
-    
