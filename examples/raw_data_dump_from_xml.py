@@ -42,17 +42,18 @@ if __name__=='__main__':
     xml_data = root.find('./Body/batch/Series')
     data={}        
     xml_samples = _get_list_elements(xml_data, './SeriesElements/')
-    for xml_sample in xml_samples:
+    for sample_idx, xml_sample in enumerate(xml_samples):
         # extract data for each sample contained in the file
     
         # get sample parameters, we'll only use this to get the sample name (ID 48154)
         param_data = {}
         xml_parameters = _get_list_elements(xml_sample, './EvalContext/ParamContext/ParameterListe/')
-        sample_name = 'no-name-defined'
+        sample_name = 'no-name-defined-%i' % sample_idx
         for xml_parameter in xml_parameters:
             ID = _get_value(xml_parameter, './ID')
             if ID == 48154:
-                sample_name = _get_value(xml_parameter, './QS_TextPar')[0]
+                new_sample_name = _get_value(xml_parameter, './QS_TextPar')[0]
+                sample_name = new_sample_name if new_sample_name != '' else sample_name
                 break
 
         # now get the data    
@@ -84,8 +85,10 @@ if __name__=='__main__':
     for sample_name in sample_names:
         if sample_name =='': continue
         print(sample_name)
-        
         channels = list(data[sample_name]['channel_data'].keys())
+        if len(channels) == 0:
+            print('  no data channels --> skipping')
+            continue
         channels.sort()
         channels.remove(data[sample_name]['time_channel_ID'])
         channels.insert(0,data[sample_name]['time_channel_ID'])
