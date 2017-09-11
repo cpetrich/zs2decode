@@ -1,62 +1,57 @@
 """Output functions for parsed zs2 chunks."""
-
+from xml.dom import minidom
+import zs2decode.parser as parser
 # Author: Chris Petrich
-# Copyright: Copyright 2015, Chris Petrich
+# Copyright: Copyright 2015-2017, Chris Petrich
 # License: MIT
 
-    
+def _add_xml_element(doc, current, name, attributes):
+    """Add XML element to tree. Uses 'current' to keep track of nesting."""
+    if attributes['type'] != 'end':
+        elem = doc.createElement(name)
+        for attr in attributes:
+            # ugly but works with Py2 and Py3:
+            elem.setAttribute(attr, attributes[attr])
+        if len(current) == 0:
+            doc.appendChild(elem)
+        else:
+            current[-1].appendChild(elem)
+        if attributes['type']=='DD':
+            current.append(elem)
+    else:
+        current.pop(-1)
+
 def chunks_to_XML(chunks, with_address=False):
     """Produces an XML representation of the chunks."""
-    # The implementation of this function is not pretty but
-    #   requires no dependencies.
-
-    def _xml_attr_escape(string):
-        """Escape characters in string"""
-        string=string.replace('&','&amp;')
-        string=string.replace('>','&gt;')
-        string=string.replace('<','&lt;')
-        string=string.replace('\\"','&quot;')
-        string=string.replace("\\'",'&apos;')
-        return string
+    if chunks[0][2] != 'DD':
+        raise ValueError('First chunk is not of data type 0xDD: %r' % chunks[0])
 
     data_types = [chunk[2] for chunk in chunks]
     if data_types.count('DD') != data_types.count('end'):
         raise ValueError('Cannot generate XML file since section start and end do not balance. Output as text file instead to debug.')
-    
-    out=[]
-    out.append('<?xml version="1.0" encoding="UTF-8"?>')    
-    section_names = []
-    level = 0
+
+    doc = minidom.Document()
+    current = []
     for chunk in chunks:
         address, name, data_type, data = chunk
-        if data_type == 'end': level-=1
-            
-        _space = '  '*level
-        show_address= "address='%0.6x' "%address if with_address else ''
-        if data_type != 'end':
-            # here we enclose the value in quotation marks...
-            if isinstance(data,int) or isinstance(data,float) or isinstance(data,list):
-                # note that 'bool' is sderived from 'int'
-                display=repr(str(data))
-            else:
-                display = repr(data) # introduces character escapes in Python 2
-                if display.startswith('u'): # only for Python 2
-                    display=display[1:] # granted, this is an ugly way of doing it, but it produces human readable and valid XML                
-            # escape XML entities in attributes
-            value = _xml_attr_escape(display)
-            line = "%s<%s %stype='%s' value=%s %s>" % (_space, name, 
-                                                         show_address, 
-                                                         data_type, value, 
-                                                         '/' if data_type != 'DD' else '')
+        if isinstance(data,int) or isinstance(data,float) or isinstance(data,list):
+            # note that 'bool' is derived from 'int'
+            display=repr(str(data))
         else:
-            line = '%s</%s>' % (_space, section_names[-1])
+            display = repr(data) # introduces character escapes in Python 2
+            if display.startswith('u'): # only for Python 2
+                display=display[1:] # granted, this is an ugly way of doing it, but it produces human readable and valid XML            
+        if display[0] in ("'",'"'):
+            display = display[1:-1]
+        attrib = {}
+        if with_address:
+            attrib['address']='%0.6x' % address
+        attrib['type'] = data_type
+        attrib['value'] = display
+
+        _add_xml_element(doc, current, name, attrib)
             
-        if data_type == 'end': section_names.pop()
-        elif data_type == 'DD': 
-            section_names.append(name)
-            level+=1
-        out.append(line)
-    return u'\n'.join(out)
+    return parser._to_string(doc.toprettyxml(indent="  ",encoding='UTF-8'))
 
 
 def chunks_to_text_dump(chunks):
