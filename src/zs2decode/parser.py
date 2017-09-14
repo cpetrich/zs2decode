@@ -654,7 +654,7 @@ def _single_as_double(presumed_single):
             float_value = float(value)
         except ValueError:
             # generate output for debug
-            print('Attempt failed converting %r to float.' % value)
+            print('Attempt failed converting %r to float (triggered by %r).' % (value, presumed_single))
             raise
         
         if _struct.pack('<f', float(value)) != start_code:
