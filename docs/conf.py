@@ -48,7 +48,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'zs2decode'
-copyright = u'2015, Chris Petrich'
+copyright = u'2015-2017, Chris Petrich'
 author = u'Chris Petrich'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -56,7 +56,7 @@ author = u'Chris Petrich'
 # built documents.
 #
 # The short X.Y version.
-version = '0.1'
+version = '0.2.0'
 # The full version, including alpha/beta/rc tags.
 release = version
 
