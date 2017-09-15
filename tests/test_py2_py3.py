@@ -121,7 +121,7 @@ class Test(unittest.TestCase):
         #   in single-precision.
         # We don't test whether the decimal representation produced is the shortest or "best".
         # (because there is ambiguity, e.g. 0.104521975 and 0.104521974.)
-        for test in (1.0000001,3.1,-9.9,5.551115e-17, 0.10452197, 0.104521975, 0.10452198):
+        for test in (0,9,0.9,-0.1, 1.0000001,3.1,-9.9,5.551115e-17, 0.10452197, 0.104521975, 0.10452198, 0.09406288713216782):
             original = struct.pack('<f',test)
             pseudo_double=struct.unpack('<f',original)[0]            
             converted = struct.pack('<f',zs2decode._single_as_double(pseudo_double))
