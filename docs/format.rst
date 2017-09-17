@@ -28,8 +28,8 @@ such as ``gunzip`` or `7-zip`_, or opening the file using the
 
 Data stream structure
 ^^^^^^^^^^^^^^^^^^^^^
-The data stream starts with a header signature, followed by combinations 
-of chunks and filler bytes, and a final end-of-file (EOF) marker.
+The data stream starts with a header signature and
+is followed by chunks.
 A typical ``zs2`` file contains over 100,000 chunks.
 
  +--------------------+--------+
@@ -74,8 +74,9 @@ Chunks
 ^^^^^^
 Chunks contain information on data stream structure, metadata or data.
 
-With the exception of the "End-of-Section" chunk, 
-all chunks follow the same general structure:
+There are two different chunk formats. One format is used by the
+"End-of-Section" chunk, the other format is used by all other chunks.
+The latter has the following structure:
 an ASCII-encoded name of the chunk type, starting 
 with one byte length giving the length of the name
 in bytes (Section :ref:`section-ascii-string-definition`), 
@@ -83,7 +84,7 @@ followed by the data type of the particular
 chunk (Section :ref:`section-data-types`) and actual chunk 
 data. In contrast, the End-of-Section chunk is simply
 a single byte of value ``0xFF``. Both chunk structures
-can be discriminated between because chunk type names 
+can be discriminated between because chunk type names
 do not start with ``0xFF``.
 
 The following chunk structures are possible:
