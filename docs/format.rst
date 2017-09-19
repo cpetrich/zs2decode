@@ -134,9 +134,11 @@ Chunk type naming
 Chunk type names are ASCII strings defined in 
 Section :ref:`section-ascii-string-definition`.
 Chunk types names are chosen to be readable ASCII text, 
-comprising only of underscore (``_``), 
+comprising mostly of underscore (``_``),
 digits ``0`` to ``9``, and English letters ``A`` to ``Z`` and ``a`` to ``z``.
-Their length is limited to 254 characters since an indicated length of 
+Very few chunk type names include other characters, in particular chunk type
+names starting with ``nt&)m_``.
+The chunk type name length is limited to 254 characters since an indicated length of
 ``255`` (``0xFF``) represents an "End-of-Section" chunk.
 Also, chunk type names of length 0 (``0x00``) do not exist.
 
