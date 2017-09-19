@@ -8,7 +8,8 @@ zs2decode is a Python (2.7, 3.3, 3.4, 3.5, 3.6) implementation of a
 decoder for Zwick ``zs2`` files.
 
 ``zs2`` files contain measurements and meta data. zs2decode is able to
-convert these files to XML for further processing. 
+parse these files. It contains support functions to output the result as
+text file or XML for further processing.
 The following script converts a ``zs2`` file into XML::
 
     import io
@@ -28,6 +29,9 @@ The following script converts a ``zs2`` file into XML::
     with io.open(xml_dump_file, 'wt', encoding='utf-8') as f:
         f.write( zs2decode.util.chunks_to_XML(chunks) )
 
+
+An example script to extract measurement time series from the XML is
+provided in the ``examples`` folder.
 
 Documentation is available at `<http://zs2decode.readthedocs.org/>`_
 and source code at `<https://github.com/cpetrich/zs2decode.git>`_.
