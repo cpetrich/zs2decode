@@ -7,6 +7,8 @@ This document records all notable changes to ``zs2decode``.
 `0.2.1-dev` (unreleased)
 -------------------------
 
+* Example script raw_data_dump_from_xml.py can now extract data from zs2 files with slightly different structure.
+* util.chunks_to_XML() will now perform character substitutions if necessary to create valid XML element names. util.chunks_to_text_dump() continues to maintain the orginal names.
 * License included in wheel.
 * Added changelog.
 
