@@ -1,4 +1,3 @@
-import io
 import zs2decode.parser
 import zs2decode.util
 
@@ -12,5 +11,5 @@ raw_chunks = zs2decode.parser.data_stream_to_chunks(data_stream)
 # convert binary chunk data into lists of Python objects
 chunks = zs2decode.parser.parse_chunks(raw_chunks)
 # output as XML file
-with io.open(xml_output_file, 'wt', encoding='utf-8') as f:
+with open(xml_output_file, 'wb') as f:
     f.write( zs2decode.util.chunks_to_XML(chunks) )

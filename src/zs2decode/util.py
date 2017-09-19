@@ -62,10 +62,14 @@ def chunks_to_XML(chunks, with_address=False):
             # note that 'bool' is derived from 'int'
             display=repr(str(data))
         else:
-            display = repr(data) # introduces character escapes in Python 2
+            if '\r' in data or '\n' in data or '\t' in data:
+                display = repr(data)
+            else:
+                display = data
             if display.startswith('u'): # only for Python 2
-                display=display[1:] # granted, this is an ugly way of doing it, but it produces human readable and valid XML            
-        if display[0] in ("'",'"'):
+                display=display[1:] # granted, this is an ugly way of doing it, but it produces human readable and valid XML
+
+        if len(display) and display[0] in ("'",'"'):
             display = display[1:-1]
         attrib = {}
         if with_address:
@@ -74,8 +78,8 @@ def chunks_to_XML(chunks, with_address=False):
         attrib['value'] = display
 
         _add_xml_element(doc, current, name, attrib)
-            
-    return parser._to_string(doc.toprettyxml(indent="  ",encoding='UTF-8'))
+
+    return doc.toprettyxml(indent="  ",encoding='UTF-8')
 
 
 def chunks_to_text_dump(chunks):
@@ -83,27 +87,28 @@ def chunks_to_text_dump(chunks):
     out=[]
     DD_names = []
     level = 0
-    
+
     data_types = [chunk[2] for chunk in chunks]
     if data_types.count('DD') != data_types.count('end'):
         # do not indent since there's obviously something wrong
         indent = None
     else:
         indent = '  '
-        
+
     for chunk in chunks:
         address, name, data_type, data = chunk
         if data_type == 'end': level-=1
-        
+
         _space = indent*level if indent is not None else ''
-        
+
         comment = '' if data_type != 'end' else '<-'.join(DD_names[-1::-1])
         if data_type == 'end': DD_names.pop()
-        
-        line = u' '.join([u'%.6x:'%address, _space+name, '[%s]'%data_type, repr(data), comment])
-            
-        if data_type == 'DD': 
+
+        data_string = repr(data) # Python 2: this escapes unicode characters
+        line = u' '.join([u'%.6x:'%address, _space+name, '[%s]'%data_type, data_string, comment])
+
+        if data_type == 'DD':
             DD_names.append(name)
             level+=1
         out.append(line)
-    return u'\n'.join(out)
+    return bytearray(u'\n'.join(out), encoding='UTF-8')
