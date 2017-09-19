@@ -5,10 +5,34 @@ import zs2decode.parser as parser
 # Copyright: Copyright 2015-2017, Chris Petrich
 # License: MIT
 
+def _XML_entities():
+    crange = lambda a,b: ['%c' % parser._chr(v) for v in range(ord(a), ord(b)+1)]
+    vrange = lambda a,b: ['%c' % parser._chr(v) for v in range(a,b+1)]
+    NameStartChar = (crange('A','Z')+crange('a','z')+[':','_']+
+                     vrange(0xC0,0xD6)+vrange(0xD8,0xF6)+vrange(0xF8,0xFF))
+    # Python xml.etree.ElementTree rejects ':' in entity names
+    NameStartChar.remove(':')
+    NameChar = NameStartChar + crange('0','9') +['-','.',u'\xB7']
+    return NameStartChar, NameChar
+
+_xml_name_start_char, _xml_name_char = _XML_entities()
+
+def _xml_sanitized_ASCII_name(name):
+    """Ensure that name is a legal XML entity name, assuming input 'name' is ASCII
+       Current solution: Replace all illegal characters with ':'."""
+    sub = '_'
+    if name == '': return sub
+    if name[0] not in _xml_name_start_char:
+        name = ':'+name[1:]
+    for idx in range(1,len(name)):
+        if name[idx] not in _xml_name_char:
+            name = name[:idx]+sub+name[idx+1:]
+    return name
+
 def _add_xml_element(doc, current, name, attributes):
     """Add XML element to tree. Uses 'current' to keep track of nesting."""
     if attributes['type'] != 'end':
-        elem = doc.createElement(name)
+        elem = doc.createElement(_xml_sanitized_ASCII_name(name))
         for attr in attributes:
             # ugly but works with Py2 and Py3:
             elem.setAttribute(attr, attributes[attr])
