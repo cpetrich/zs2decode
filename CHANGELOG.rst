@@ -4,6 +4,11 @@ Changelog
 
 This document records all notable changes to ``zs2decode``.
 
+`0.3.0-dev` (unreleased)
+-------------------------
+
+* Utility functions return bytes/bytearray to avoid double-UTF8 encoding of strings
+
 `0.2.1-dev` (unreleased)
 -------------------------
 
