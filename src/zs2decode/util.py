@@ -101,7 +101,7 @@ def chunks_to_text_dump(chunks):
 
         _space = indent*level if indent is not None else ''
 
-        comment = '' if data_type != 'end' else '<-'.join(DD_names[-1::-1])
+        comment = '' if data_type != 'end' else './'+'/'.join(DD_names)
         if data_type == 'end': DD_names.pop()
 
         data_string = repr(data) # Python 2: this escapes unicode characters
