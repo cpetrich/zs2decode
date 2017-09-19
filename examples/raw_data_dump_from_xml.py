@@ -20,7 +20,10 @@ def _get_type(root, path):
     return root.find(path).attrib['type']
     
 def _get_value(root, path):
-    string=root.find(path).attrib['value']
+    element = root.find(path)
+    if element is None:
+        raise ValueError('No path %r' % path)
+    string = element.attrib['value']
     dtype=_get_type(root, path)    
     if dtype in ('AA','DD'): return u'%s' % string
     if dtype.startswith('EE11'):
