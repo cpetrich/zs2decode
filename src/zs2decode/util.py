@@ -1,4 +1,5 @@
 """Output functions for parsed zs2 chunks."""
+import json
 from xml.dom import minidom
 import zs2decode.parser as parser
 # Author: Chris Petrich
@@ -58,19 +59,15 @@ def chunks_to_XML(chunks, with_address=False):
     current = []
     for chunk in chunks:
         address, name, data_type, data = chunk
-        if isinstance(data,int) or isinstance(data,float) or isinstance(data,list):
-            # note that 'bool' is derived from 'int'
-            display=repr(str(data))
+        if isinstance(data,(int,float,list)):
+            # note that 'bool' is derived from 'int'.
+            # note that json uses 'true' rather than 'True'
+            display=json.dumps(data, ensure_ascii=False)
         else:
-            if '\r' in data or '\n' in data or '\t' in data:
-                display = repr(data)
-            else:
-                display = data
-            if display.startswith('u'): # only for Python 2
-                display=display[1:] # granted, this is an ugly way of doing it, but it produces human readable and valid XML
+            # create escaped string enclosed in double quotes,
+            #  then strip the double quotes
+            display = json.dumps(data, ensure_ascii=False)[1:-1]
 
-        if len(display) and display[0] in ("'",'"'):
-            display = display[1:-1]
         attrib = {}
         if with_address:
             attrib['address']='%0.6x' % address
