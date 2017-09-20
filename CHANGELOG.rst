@@ -7,8 +7,9 @@ This document records all notable changes to ``zs2decode``.
 `0.3.0-dev` (unreleased)
 -------------------------
 
-* Changed order of path elements printed together with closing elements in text output
-* Utility functions return bytes/bytearray to avoid double-UTF8 encoding of strings
+* Utility functions return bytes/bytearray to avoid double-UTF8 encoding of strings.
+* Values in XML elements are now JSON encoded rather than based on repr().
+* Changed order of path elements printed together with closing elements in text output.
 
 `0.2.1-dev` (unreleased)
 -------------------------
