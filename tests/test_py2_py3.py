@@ -37,10 +37,6 @@ class Test(unittest.TestCase):
     def test_skip_past_data_dd(self):
         self.assertEqual(zs2decode._skip_past_data_dd(b'xyz\xdd\x00abcdefg', 3),5)
         self.assertEqual(zs2decode._skip_past_data_dd(b'xyz\xdd\x02abcdefg', 3),7)
-    #def test_skip_ff(self):
-    #    self.assertEqual(zs2decode._skip_ff(b'\x00\xff\xff\xff\x01', 0),0)
-    #    self.assertEqual(zs2decode._skip_ff(b'\x00\xff\xff\xff\x01', 1),4)
-    #    self.assertEqual(zs2decode._skip_ff(b'\x00\xff\xff\xff', 1),4)
     def test_parse_text_and_numbers(self):
         self.assertEqual(zs2decode._parse_data_11(b'\x11\x03\x00\x00\x00'),(3.,'11'))
         self.assertEqual(zs2decode._parse_data_22(b'"\xd8\x9d\x00\x00'),(40408,'22'))
@@ -59,8 +55,6 @@ class Test(unittest.TestCase):
         self.assertEqual(zs2decode._parse_data_ee(b'\xee\x01\x02\x03\x04'),(b'\x01\x02\x03\x04','EE'))        
     def test_parse_data_ee_subtypes(self):
         # make sure we get a result with good data as expected
-        #self.assertEqual(zs2decode._parse_data_ee_subtypes(b'\xee\x11\x00\x03\x00\x00\x00\x07\x00\x01'),
-        #                                      (b'\x07\x00\x01',u'EE11'))
         self.assertEqual(zs2decode._parse_data_ee_subtypes(b'\x11\x00\x03\x00\x00\x00\x07\x00\x01'),
             ([7,0,1],u'EE11'))
         self.assertEqual(zs2decode._parse_data_ee_subtypes(b'\x04\x00\x02\x00\x00\x00\xd8\xff@\xc3\xd8\xff@\xc3'),
@@ -83,20 +77,11 @@ class Test(unittest.TestCase):
                          ([],u'EE00'))
             self.assertEqual(zs2decode._parse_data_ee_subtypes(b'\x00\x00\x01\x00\x00\x00AAAA'),
                          ([],u'EE00'))
-        # make sure debug function works
-        self.assertEqual(zs2decode._parse_data_ee_subtypes(b'\x04\x00\x02\x00\x00\x00\xd8\xff@\xc3\xd8\xff@', debug=True),
-                         (b'\x04\x00\x02\x00\x00\x00\xd8\xff@\xc3\xd8\xff@',u'EE'))
-        self.assertEqual(zs2decode._parse_data_ee_subtypes(b'\x04\x00\x02\x00\x00\x00\xd8\xff@\xc3\xd8\xff@\xc3X', debug=True),
-                         ([[-192.99939,-192.99939],b'X'],u'EE04-debug'))
-        self.assertEqual(zs2decode._parse_data_ee_subtypes(b'\x00\x00\x01\x00\x00\x00',debug=True),
-                         ([b''],u'EE00'))
-        self.assertEqual(zs2decode._parse_data_ee_subtypes(b'\x00\x00\x01\x00\x00\x00ABCD',debug=True),
-                         ([[b''],b'ABCD'],u'EE00-debug'))        
     def test_QS(self):
         data=b'\x02\x00\x00\x00\x80\x00\x00\x00\x80\x02\x00\x00\x00\t\x00\x00\x80U\x00T\x00_\x00N\x00o\x00U\x00n\x00i\x00t\x00\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x0c\x00\x00\x00\x05\x00\x00\x80%\x00/\x00m\x00i\x00n\x00\x03\x00\x00\x80%\x00/\x00s\x00\x07\x00\x00\x80%\x00L\x000\x00/\x00m\x00i\x00n\x00\x05\x00\x00\x80%\x00L\x000\x00/\x00s\x00\x05\x00\x00\x801\x00/\x00m\x00i\x00n\x00\x03\x00\x00\x801\x00/\x00s\x00\x08\x00\x00\x80k\x00p\x00s\x00i\x00/\x00m\x00i\x00n\x00\x06\x00\x00\x80k\x00p\x00s\x00i\x00/\x00s\x00\x05\x00\x00\x80M\x00P\x00a\x00/\x00s\x00\x06\x00\x00\x80N\x00/\x00m\x00m\x00\xb2\x00s\x00\x07\x00\x00\x80p\x00s\x00i\x00/\x00m\x00i\x00n\x00\x05\x00\x00\x80p\x00s\x00i\x00/\x00s\x00\xfc\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
         result=zs2decode._parse_record_data_ee11_formats_QS('QS_ValSetting',data, False)
-        expected = ([u'', u'', 2, u'UT_NoUnit', 1, 1, 0, 0, 0, 0, [],[u'%/min', u'%/s', u'%L0/min', u'%L0/s', u'1/min', u'1/s', u'kpsi/min', u'kpsi/s', u'MPa/s', u'N/mm\xb2s', u'psi/min', u'psi/s'], 252, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    'EE11-02-2SLS3BH2B(H)(S)11B')
+        expected = ([2, u'', u'', 2, u'UT_NoUnit', 1, 1, 0, 0, 0, 0, [],[u'%/min', u'%/s', u'%L0/min', u'%L0/s', u'1/min', u'1/s', u'kpsi/min', u'kpsi/s', u'MPa/s', u'N/mm\xb2s', u'psi/min', u'psi/s'], 252, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    'EE11-B2SLS3BH2B(H)(S)11B')
         self.assertEqual(result, expected)
     def test_get_unicode_string(self):
         self.assertEqual(zs2decode._get_unicode_string(b'\xff\x02\x00\x00\x80H\x00i\x00',1),(u'Hi',9))
@@ -126,17 +111,6 @@ class Test(unittest.TestCase):
             pseudo_double=struct.unpack('<f',original)[0]            
             converted = struct.pack('<f',zs2decode._single_as_double(pseudo_double))
             self.assertEqual(converted,original)
-    def test_get_tokens_from_format_string(self):
-        self.assertEqual(zs2decode._get_tokens_from_format_string('B2L11d'),
-                         [['direct','BLLddddddddddd',97]])
-        self.assertEqual(zs2decode._get_tokens_from_format_string('2B L'),
-                         [['direct','BB',2],['direct','L',4]])
-        self.assertEqual(zs2decode._get_tokens_from_format_string('B(L2d)'),
-                         [['direct', 'B', 1], ['list', 'start'], ['direct', 'Ldd', 20], ['list', 'end']])
-        self.assertEqual(zs2decode._get_tokens_from_format_string('(S)'),
-                         [['list', 'start'], ['string', True], ['list', 'end']])
-        self.assertEqual(zs2decode._get_tokens_from_format_string('2S(Sd1s)'),                         
-                         [['string', True],['string', True],['list', 'start'],['string', True],['direct', 'd', 8],['string', False],['list', 'end']])
                          
 if __name__=='__main__':
     unittest.main()
