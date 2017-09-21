@@ -78,13 +78,8 @@ class Test(unittest.TestCase):
             self.assertEqual(parser._parse_data_ee_subtypes(b'\x00\x00\x01\x00\x00\x00AAAA'),
                          ([],u'EE00'))
     def test_QS(self):
-        import struct as _struct
-        result = [(_struct.calcsize(token),_struct.calcsize(token.lower())) for token in 'BHILQ']
-        expected = [(1,1),(2,2),(4,4),(4,4),(8,8)]
-        self.assertEqual(result, expected)
-
         data = b'\x00\x00\x00\x00\x00' #\x00\x00\x00\x00\x00\x00\x80' #\x02\x00\x00\x00\x80\x00\x00\x00\x80\x02\x00\x00\x00\t'#\x00\x00\x80U\x00T\x00_\x00N\x00o\x00U\x00n\x00i\x00t\x00'
-        fmt, decoded = 'IB', [0,0] #u'',0,0,0,0,128] #2, u'', u'', 2, 9] #u'UT_NoUnit']
+        fmt, decoded = 'LB', [0,0] #u'',0,0,0,0,128] #2, u'', u'', 2, 9] #u'UT_NoUnit']
         result = parser._parse_data_by_format_helper(fmt, bytearray(data), strict_unsigned=False)
         expected = True, fmt, decoded, 5
         self.assertEqual(result, expected)
