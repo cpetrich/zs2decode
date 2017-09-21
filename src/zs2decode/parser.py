@@ -424,129 +424,288 @@ def _parse_data_ee_subtypes(data, debug=False):
 #
 
 # format string:
-# Byte B
-# Word H
-# Long L
+# Byte unsigned B signed b
+# Word unsigned H signed h
+# Long unsigned L signed l
 # single f
 # double d
-# list of (tubles):   (...)
-# string s
-# not-checked string S
-# write like so: 3BLd(Ld)2(SSSS) etc.
+# list of (tuples):   (...)
+# string S
+#
+# shorthand:
+# 2S2(LH) expands to SS(LH)(LH)(LH)
+# 2S2(LH)B=3 evaluates successfully if the last value is equal to 3
+# B=3:BH=4 evaluates successfully if B==3 AND the H==4
+# B=3:BH=4:BHS will evaluate data as BHS only if B==3 and H==4
 
-# everything up to ( or s/S can be put directly into struct.unpack()
-def _get_tokens_from_format_string(fmt):
-    direct={'B':1,'b':1,'H':2,'h':2,'L':4,'l':4,'f':4,'d':8}
-    tokens=[]
-    acc=''
-    times = None
-    length = 0
-    fmt += ' ' # add a character to flush the accumulator
-    while len(fmt)>0:
-        c = fmt[0]
-        if c in direct:
-            acc+=c * (times if times is not None else 1)
-            length += direct[c]*(times if times is not None else 1)
-            times=None
+def expand_format(fmt):
+    """Expand a format including multiple applications of a token
+       into a sequence without multiplication.
+       Also works with lists and nested lists."""
+    # this function may be of broader interest to those interpreting format string and data
+    if fmt.count('(') != fmt.count(')'): raise ValueError('Brackets do not balance in %r' % fmt)
+    if fmt.find(')') < fmt.find('('): raise ValueError('Closing bracket before opening in %r' % fmt)
+    out, fmt_idx, times = '', 0, None
+    while fmt_idx < len(fmt):
+        char = fmt[fmt_idx]
+        if char>='0' and char<='9':
+            times = (times or 0) * 10 + (ord(char)-ord('0'))
+            fmt_idx += 1
+        elif char == '(':
+            close_idx, nesting = fmt_idx + 1, 0
+            while fmt[close_idx] != ')' or nesting>0:
+                if fmt[close_idx] == '(': nesting += 1
+                elif fmt[close_idx] == ')': nesting -= 1
+                close_idx += 1
+            out += ('(%s)' % expand_format(fmt[fmt_idx+1:close_idx]))*(times if times is not None else 1)
+            times = None
+            fmt_idx = close_idx + 1
         else:
-            if (len(acc)>0) and not ('0'<=c<='9'):
-                tokens.append(['direct',acc, length])
-                acc=''
-                length=0
-            if c in ('s','S'):
-                tokens+=[['string',c=='S'] for i in range(times if times is not None else 1)]
-                times = None
-            elif c == '(':
-                tokens.append(['list','start'])
-            elif c == ')':
-                tokens.append(['list','end'])
-            elif '0'<=c<='9':
-                times = 0 if times is None else times*10
-                times += _ord(c)-_ord('0')
-            elif c not in ('\r','\n','\t',' ',','):
-                raise ValueError('Unknown character %s in format string"%s".' % (c, fmt))
-        fmt = fmt[1:]
+            out += char*(times if times is not None else 1)
+            times = None
+            fmt_idx += 1
+    return out
 
-    return tokens
+def _get_next_token_compact(fmt, fmt_idx):
+    """Helper for _compact_format() to find next token, compacting
+       stuff in brackets on the fly."""
+    if fmt[fmt_idx] != '(':
+        token = fmt[fmt_idx]
+        close_idx = fmt_idx
+    else:
+        close_idx, nesting = fmt_idx + 1, 0
+        while fmt[close_idx] != ')' or nesting>0:
+            if fmt[close_idx] == '(': nesting += 1
+            elif fmt[close_idx] == ')': nesting -= 1
+            close_idx += 1
+        token = '(%s)' % _compact_format(fmt[fmt_idx+1:close_idx])
+    return token, close_idx + 1
 
-def _parse_data_by_tokens(data,tokens):
-    max_num={'B':2**8-1,'b':2**8-1,'H':2**16-1,'h':2**16-1,'L':2**32-1,'l':2**32-1,'f':'','d':''}
-    list_count = None
-    result = [[]]
-    current_list_level=0
-    start = 0
-    token_idx = 0
-    while (token_idx < len(tokens)):
-        token = tokens[token_idx]
-        prop, value, length = token+[None,]*(3-len(token))
-        if prop == 'direct':
-            if start+length<=len(data):
-                out = list(_struct.unpack('<'+value, data[start:start+length]))
-                out = [v if v != max_num[c] else -1 for v, c in zip(out,value)]
-                result[-1] += out
-            start += length
-        elif prop == 'string':
-            string, start = _get_unicode_string(data, start, check_string_marker=value)
-            if string is not None: result[-1] += [string]
-        elif (prop,value) == ('list','start'):
-            if len(data)<start+4: break # end processing, no more data and we are at the lowest level at the moment
-            result.append([]) # add data to new layer to group tuples
-            if list_count is None:
-                result.append([])  # add a new layer to nest the list
-                list_count = _unpack1('L',data[start:start+4])
-                start += 4
-            if list_count == 0:
-                while tokens[token_idx][:2] != ['list','end']:
-                    token_idx += 1
-                token_idx -= 1
-        elif (prop,value) == ('list','end'):
-            # store data in list as tuple only if there are at least 2 entries
-            # otherwise, store as linear scalars within the list
-            result[-2]+=[tuple(result[-1])] if len(result[-1])>=2 else result[-1]
-            result.pop()
-            list_count -= 1
-            if list_count >0:
-                while tokens[token_idx][:2] != ['list','start']:
-                    token_idx -= 1
-                token_idx -= 1
+def _compact_format(fmt):
+    """Consolidate repeated tokens into their number followed by a single token,
+       also works with lists and nested lists"""
+    if not len(fmt): return fmt
+    if fmt.count('(') != fmt.count(')'): raise ValueError('Brackets do not balance in %r' % fmt)
+    if fmt.find(')') < fmt.find('('): raise ValueError('Closing bracket before opening in %r' % fmt)
+    # ensure format is in its expanded form
+    if any(check in fmt for check in '0123456789'): fmt = expand_format(fmt)
+    out, fmt_idx, times, last_token = '', 0, None, ''
+    while fmt_idx < len(fmt):
+        token, next_idx = _get_next_token_compact(fmt, fmt_idx)
+        if (token == last_token) or (last_token == ''):
+            times = (times or 0) + 1
+        else:
+            if (times or 0) > 1:
+                out += '%i%s' % (times, last_token)
             else:
-                result[-2]+=[result[-1]] # store list in results, always as list
-                result.pop()
-                list_count = None
+                out += '%s' % (last_token)
+            times = 1
+        fmt_idx = next_idx
+        last_token = token
+    if (times or 0) > 1:
+        out += '%i%s' % (times, token)
+    else:
+        out += '%s' % (token)
+    return out
+
+def _parse_data_by_format_helper(fmt, data, strict_unsigned = None):
+    """This is the core function for EE11 format string interpretation"""
+    # returns data_idx rather than residual data[data_idx:]
+    strict_unsigned = True if strict_unsigned is None else strict_unsigned
+    fmt_idx, data_idx = 0, 0
+    parsed_fmt, parsed_data = '', []
+    while fmt_idx < len(fmt):
+        token = fmt[fmt_idx]
+        if token == '.':
+            # interpret everything remaining as bytes
+            char = 'B'
+            length = _struct.calcsize(char)
+            new_data = [_struct.unpack('<%s'%char,data[idx:idx+length])[0] for idx in range(data_idx, len(data))]
+            parsed_data += new_data
+            parsed_fmt += char*len(new_data)
+            data_idx = len(data)
+            fmt_idx += 1
+        elif token == '*':
+            # use heuristic to interpret remaining bytes as
+            #  string or bytes
+            _, fmt_tail, data_tail, _ = _parse_heuristic_string_byte(data[data_idx:])
+            parsed_data += data_tail
+            parsed_fmt += fmt_tail
+            data_idx = len(data)
+            fmt_idx += 1
+        elif token == 'S': # string
+            string, cont_idx = _get_unicode_string(data, data_idx, check_string_marker=True)
+            if string is None:
+                return False, parsed_fmt, parsed_data, data_idx
+            parsed_data.append(string)
+            parsed_fmt += token
+            data_idx = cont_idx
+            fmt_idx += 1
+        elif token == '(': # list
+            closing_idx, nesting = fmt_idx+1, 0
+            while fmt[closing_idx] != ')' or nesting > 0:
+                if fmt[closing_idx] == ')': nesting -= 1
+                elif fmt[closing_idx] == '(': nesting += 1
+                closing_idx += 1
+            sub_fmt = fmt[fmt_idx+1:closing_idx]
+            try:
+                count = _struct.unpack('<L', data[data_idx:data_idx+4])[0]
+            except _struct.error:
+                return False, parsed_fmt, parsed_data, data_idx
+            list_data = []
+            list_data_idx = data_idx+4
+            for run in range(count):
+                success, new_fmt, new_parsed_data, new_data_idx = (
+                    _parse_data_by_format_helper(sub_fmt, data[list_data_idx:], strict_unsigned=strict_unsigned))
+                if success:
+                    # flatten one-tuples to elements
+                    if len(new_parsed_data) == 1: new_parsed_data = new_parsed_data[0]
+                    list_data.append(new_parsed_data)
+                    list_data_idx += new_data_idx
+                else:
+                    # return state we had before entering the list
+                    return False, parsed_fmt, parsed_data, data_idx
+            parsed_data.append(list_data)
+            data_idx = list_data_idx
+            parsed_fmt += '(%s)' % sub_fmt
+            fmt_idx = closing_idx + 1
         else:
-            raise ValueError('Unknown token %s.' % repr(token))
-        token_idx += 1
-    if len(result) != 1:
-        raise ValueError('parsing result %s' % repr(result))
-    return result[0], start
+            byte_length = _struct.calcsize(token)
+            try:
+                number_raw = _struct.unpack('<'+token, data[data_idx:data_idx+byte_length])[0]
+            except _struct.error:
+                return False, parsed_fmt, parsed_data, data_idx
+
+            if not strict_unsigned and token not in 'fd':
+                # check if we have to overwrite the highest unsigned number
+                #    with signed '-1' (since this is typically a flag)
+                max_value = 2**(8*byte_length)-1
+                if number_raw == max_value:
+                    number = -1
+                    parsed_fmt += token.lower() # indicate signed
+                else:
+                    number = number_raw
+                    parsed_fmt += token
+            elif token == 'f':
+                number = _single_as_double(number_raw)
+                parsed_fmt += token
+            else:
+                number = number_raw
+                parsed_fmt += token
+
+            parsed_data.append(number)
+            data_idx += byte_length
+            fmt_idx += 1
+    return True, parsed_fmt, parsed_data, data_idx
+
+def _parse_data_by_format(fmt, data, strict_unsigned = None):
+    """Entry point for lowest level of data parsing. Returns success==True if
+       the entire format string could had been parsed."""
+    # entry point for Level 1 of parsing algorithm
+    if any(check in fmt for check in '0123456789'): fmt = expand_format(fmt)
+    success, parsed_fmt, parsed_data, data_idx = _parse_data_by_format_helper(fmt, data, strict_unsigned = strict_unsigned)
+    return success, _compact_format(parsed_fmt), parsed_data, data[data_idx:]
+
+def _parse_heuristic_string_byte(data):
+    data_idx = 0
+    data_out, fmt_out = [], ''
+    while data_idx < len(data):
+        string, cont_idx = _get_unicode_string(data, data_idx, check_string_marker=True)
+        if string is None:
+            data_out.append(_struct.unpack('<B',data[data_idx:data_idx+1])[0])
+            data_idx += 1
+            fmt_out += 'B'
+        else:
+            data_out.append(string)
+            data_idx = cont_idx
+            fmt_out += 'S'
+    return True, fmt_out, data_out, bytearray()
+
+def _parse_data_by_expression(expr, data, strict_unsigned = None):
+    """Evaluate a single parser expression"""
+    # entry point for Level 2 of parsing algorithm
+    fmt = expr.split('=',1)[0]
+    l1_success, parsed_fmt, parsed_data, residual = _parse_data_by_format(fmt, data, strict_unsigned = strict_unsigned)
+    if '=' not in expr:
+        # success means that the string has been parsed on full
+        success = l1_success and len(residual) == 0
+    else:
+        expected = expr.split('=',1)[1]
+        if expected == '':
+            # matches anything
+            success = l1_success
+        else:
+            # last parameter parsed is equal to whatever is specified
+            try:
+                # cast to appropriate type
+                # NB: eval enables us to test lists
+                compared = type(parsed_data[-1])(eval(expected))
+            except (ValueError, TypeError):
+                # wrong type
+                compared = None
+            success = l1_success and compared is not None and compared == parsed_data[-1]
+    return success, parsed_fmt, parsed_data, residual
+
+def _parse_record(grammar, data, strict_unsigned = None):
+    """Evaluate data record according to given grammar."""
+    # Main entry point (Level 3) for parsing of data in EE11 records
+    if isinstance(grammar,(list,tuple)):
+        # within a list of chains, return result of first chain
+        #   that evaluates successfully
+        for chain in grammar:
+            result = _parse_record(chain, data, strict_unsigned = strict_unsigned)
+            if result[0]: break # first chain that evaluates successully
+    else:
+        # within a chain, ALL expressions have to evaluate successfully
+        for expr in grammar.split(':'):
+            success, parsed_fmt, parsed_data, residual = (
+                _parse_data_by_expression(expr, data,
+                                          strict_unsigned=strict_unsigned))
+            if not success:
+                break
+        result = success, parsed_fmt, parsed_data, residual
+    return result
 
 def _parse_record_data_ee11_formats_QS(name, data, debug=False):
-    fmt={'QS_Par':[1,'4B'],
-         'QS_ValPar':[1,'dSH9B'],
-         'QS_TextPar':[1,'4S'],
-         'QS_SelPar':[2,'L(L)4S'],
-         'QS_ValArrPar':[2,'SHB(L)'],
-         'QS_ValArrParElem':[2,'(Ld)'],
-         'QS_ArrPar':[2,'(L)B'],
-         'QS_ParProp':[7,'9B1H9S3H5S9BS4B'],
-         'QS_ValProp':[1,'4B'],
-         'QS_TextProp':[1,'8B'],
-         'QS_SelProp':[4,'3B,(SSSS)(SSSS)(S)(S)(H)(L)(S)'],
-         'QS_ValArrParProp':[2,'4BH4B'],
-         'QS_SkalProp':[2,'2S2B'],
-         'QS_ValSetting':[2,'2SLS3BH2B(H)(S)11B'],#[2,'2SLS3BH2B(H)s11B'],
-         'QS_NumFmt':[2,'4Bd'],
-         'QS_Plaus':[1,'9B6BH6BH6B'],
-         'QS_Tol':[1,'9B6BH6BH3B'],
+    fmt={'QS_Par':['B=1:B4B'],
+         'QS_ValPar':['B=1:BdSH9B'],
+         'QS_TextPar':['B=1:B4S'],
+         'QS_SelPar':['B=2:BL(L)4S'],
+         'QS_ValArrPar':['B=2:BSHB(L)'],
+         'QS_ValArrParElem':['B=2:B(Ld)'],
+         'QS_ArrPar':['B=2:B(L)B'],
+         'QS_ParProp':['B=7:B9BH9S3H5SL=0:B9BH9S3H5SL2HBS4B',
+                       'B=7:B9BH9S3H5SL=2:B9BH9S3H5SL2HBLS4B',
+                       'B=8:B9BH*'],
+         'QS_ValProp':['B=1:B4B'],
+         'QS_TextProp':['B=1:B8B'],
+         'QS_SelProp':['B=4:B3B2(4S)2(S)(H)(L)(S)','B=4:B3B',
+                       'B=5:B3B2(4S)2(S)(H)(L)(S)B','B=5:B4B'],
+         'QS_ValArrParProp':['B=2:B4BH4B'],
+         'QS_SkalProp':['B=2:B2S2B'],
+         'QS_ValSetting':['B=2:B2SLS3BH2B(H)(S)11B'],
+         'QS_NumFmt':['B=2:B4Bd'],
+         'QS_Plaus':['B=1:B9B6BH6BH6B'],
+         'QS_Tol':['B=1:B9B6BH6BH3B'],
          }
-    if name not in fmt: return data[:], 'EE11' # not defined
-    sub_type, format_ = fmt[name]
-    if sub_type != _ord(data[0]): return data[:], 'EE11' # unknown sub-type
-    tokens= _get_tokens_from_format_string(format_)
-    output, cont = _parse_data_by_tokens(bytearray(data[1:]),tokens)
-    if cont<len(data)-1: output.append((None,data[1+cont:]))
-    return output, 'EE11-%0.2x-%s'%(sub_type,format_)
 
+    grammar = fmt.get(name,'*') # get specific grammar or use default
+    # if all fails, ensure success through linear heuristic interpretation
+    if grammar[-1] != '*': grammar.append('*')
+    success, parsed_fmt, parsed_data, residual = _parse_record(grammar, bytearray(data), strict_unsigned=False)
+    if not success or len(residual):
+        # this should never be reached as long as we parse with '*' or '.'
+        raise ValueError('Unexpected parse error of EE11 for %r with %r' % (name, data))
+    if debug:
+        # Raise awareness of application of heuristics
+        actual = expand_format(parsed_fmt)
+        for option in grammar:
+            requested = expand_format(option.split(':')[-1])
+            if actual == requested: break
+        else:
+            print('Applied heuristic format %s for %s with %s' %
+                  (parsed_fmt, name, repr(data)[:200]+('...' if len(repr(data))>200 else '')))
+    return parsed_data, (('EE11-%s' % parsed_fmt) if len(parsed_fmt) else 'EE11')
 
 def _parse_record_data_ee11_formats_Entry(data, debug=False):
     """Provisional decoder for Entry record format.

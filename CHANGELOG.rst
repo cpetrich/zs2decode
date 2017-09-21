@@ -7,9 +7,11 @@ This document records all notable changes to ``zs2decode``.
 `0.3.0-dev` (unreleased)
 -------------------------
 
+* Refactored parsing of data in QS_ chunks (0xEE sub-type 0x0011) to be more general. The format code lost its prominent status, affecting the structure of type and format signatures in the output. There is no syntax for unparsed data anymore.
 * Utility functions return bytes/bytearray to avoid double-UTF8 encoding of strings.
-* Values in XML elements are now JSON encoded rather than based on repr().
+* Values in XML elements are now JSON encoded rather than based on repr(). This affects the spelling of booleans, and tuples are output as lists.
 * Changed order of path elements printed together with closing elements in text output.
+* Added and modified format strings for QS_ chunks.
 
 `0.2.1-dev` (unreleased)
 -------------------------
