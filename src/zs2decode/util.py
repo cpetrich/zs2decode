@@ -24,7 +24,7 @@ def _xml_sanitized_ASCII_name(name):
     sub = '_'
     if name == '': return sub
     if name[0] not in _xml_name_start_char:
-        name = ':'+name[1:]
+        name = '_'+name[1:]
     for idx in range(1,len(name)):
         if name[idx] not in _xml_name_char:
             name = name[:idx]+sub+name[idx+1:]
@@ -33,7 +33,10 @@ def _xml_sanitized_ASCII_name(name):
 def _add_xml_element(doc, current, name, attributes):
     """Add XML element to tree. Uses 'current' to keep track of nesting."""
     if attributes['type'] != 'end':
-        elem = doc.createElement(_xml_sanitized_ASCII_name(name))
+        clean_name = _xml_sanitized_ASCII_name(name)
+        elem = doc.createElement(_xml_sanitized_ASCII_name(clean_name))
+        if clean_name != name:
+            elem.setAttribute('name', name)
         for attr in attributes:
             # ugly but works with Py2 and Py3:
             elem.setAttribute(attr, attributes[attr])
