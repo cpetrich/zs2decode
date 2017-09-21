@@ -710,6 +710,17 @@ def _parse_record_data_ee11_formats_QS(name, data, debug=False):
 def _parse_record_data_ee11_formats_Entry(data, debug=False):
     """Provisional decoder for Entry record format.
     Note that output format is subject to change."""
+
+    # temporary solution that produces a format string consistent
+    #  with QS_ chunks. However, we can do better than this.
+    success, parsed_fmt, parsed_data, residual = _parse_record('*', bytearray(data), strict_unsigned=True)
+
+    if not success or len(residual):
+        raise ValueError('Internal parser error in <Entry>: %r' % data)
+
+    return parsed_data, parsed_fmt
+    ##############################################################
+
     if (len(data)<1) or _ord(data[0]) != 0x02: return data, 'EE11' # unknown format
 
     data = bytearray(data)
@@ -753,7 +764,7 @@ def _parse_record_data_ee11_formats_Entry(data, debug=False):
         start += 1
         format_string.append('B')
 
-    return line, u'EE11-%0.2X-%s' % (sub_type, u''.join(format_string))
+    return [sub_type]+line, u'EE11-%s' % (u'B'+u''.join(format_string))
 
 def _get_prefixed_data(data, start):
     """Get a list of numbers introduced by a type prefix specific to Entry record."""
