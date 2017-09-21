@@ -1,19 +1,19 @@
 language: python
 python:
-  - "2.7"
-  - "3.3"
-  - "3.4"
-  - "3.5"
-  - "3.6"
-  - "pypy"
-  - "nightly"
+- '2.7'
+- '3.3'
+- '3.4'
+- '3.5'
+- '3.6'
+- pypy
+- nightly
 install: pip install tox-travis
 script: tox
-
 deploy:
   provider: pypi
   user: cpetrich
   password:
+    secure: KWzPtXohSe5JP6MP+6+dhI7pumsKLmHfqyQTHRQmy7zYcz9T3hrb9X7xNvYqYEgs5nUA0RISVgiAk5bw8/FdUWzf9tnueiZzFJxw6PrHrklFjDuc2bStb7vCSPtD7kvUKXsxgblm+3zSp4GMkSiENm8+FDqfqPrEA7Crd6u9MweYD6pSfEgzJFqsEDC1NHmNDeT/1a/XnsnCtzRKqwRrkRC3zIG7Rg9hAfOS6Yf0H6qPFzS00G/rZeFvfU9VIrGl36KM/mTdKqvkgdDPVZQ8muk0KKwd9ewNS2MzkdNGezzuu/Otm2cu3+Q/5x7gpDAV+p5ToR/AqXUetOus2U1qUvHHZAqRbWo70PZ6zGX+VjZsY5m8wCCqFHqQw5H+Dnzbdh88Efy5Jc0Bv6qm+w6/1NUmyC1JdlfFU4urq45Zjl1L5NFk6PeBuYl8tA2eINun8wP2kwgMW6w0A0UhEWwqmF9yVbrHge60fkFOcyaaFkKGm1qxbefVpNopVKkicKapktm1lQwFlR1i46Hhh3mBcSoM6stZvMUdBDoLoRpgFV98ldbg/iJQJXPngo3EiZ8cfQva2tyEAbzq2vAeAQJHy1GCTZK8871gkReuoBFobqQ1MOW4Lfgz7bi3lwwpTWXt7z1SFQMAF0NyNM8a5r2cPrftDazAQB+hlG1xDwd3j0I=
   distributions: "sdist bdist_wheel"
   on:
     tags: true
