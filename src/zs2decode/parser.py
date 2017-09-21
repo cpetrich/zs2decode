@@ -19,7 +19,16 @@ _chr= lambda x: u'%c'%x if isinstance(x,int) else u'%c'%_ord(x)
 _to_string= lambda data: u''.join([_chr(elem) for elem in data])
 
 ######## convenience function
-_unpack1= lambda fmt, data: _struct.unpack('<'+fmt,data)[0]
+_unpack1= lambda fmt, data: _struct.unpack('<'+_fmt_map[fmt],data)[0]
+
+# The I and L format characters have different sizes depending on the platform
+#  even if presumably fixed with '<'. E.g. windows L = 4 bytes, Travis CI L = 8 bytes
+# we want:
+#           B=1 byte, H=2 bytes, L=4 bytes, Q=8 bytes
+_fmt_size = [_struct.calcsize(key) for key in 'BHILQ']
+_fmt_map = {key:'BHILQ'[_fmt_size.index(2**idx)] for idx, key in enumerate('BHLQ')}
+_fmt_map.update({key.lower():_fmt_map[key].lower() for key in _fmt_map})
+_fmt_map.update({'d':'d','f':'f'}) # floating point numbers
 
 #####################################
 #
@@ -520,7 +529,7 @@ def _parse_data_by_format_helper(fmt, data, strict_unsigned = None):
             # interpret everything remaining as bytes
             char = 'B'
             length = _struct.calcsize(char)
-            new_data = [_struct.unpack('<%s'%char,data[idx:idx+length])[0] for idx in range(data_idx, len(data))]
+            new_data = [_unpack1(char,data[idx:idx+length]) for idx in range(data_idx, len(data))]
             parsed_data += new_data
             parsed_fmt += char*len(new_data)
             data_idx = len(data)
@@ -549,7 +558,7 @@ def _parse_data_by_format_helper(fmt, data, strict_unsigned = None):
                 closing_idx += 1
             sub_fmt = fmt[fmt_idx+1:closing_idx]
             try:
-                count = _struct.unpack('<L', data[data_idx:data_idx+4])[0]
+                count = _unpack1('L', data[data_idx:data_idx+4])
             except _struct.error:
                 return False, parsed_fmt, parsed_data, data_idx
             list_data = []
@@ -570,9 +579,9 @@ def _parse_data_by_format_helper(fmt, data, strict_unsigned = None):
             parsed_fmt += '(%s)' % sub_fmt
             fmt_idx = closing_idx + 1
         else:
-            byte_length = _struct.calcsize(token)
+            byte_length = _struct.calcsize(_fmt_map[token])
             try:
-                number_raw = _struct.unpack('<'+token, data[data_idx:data_idx+byte_length])[0]
+                number_raw = _unpack1(token, data[data_idx:data_idx+byte_length])
             except _struct.error:
                 return False, parsed_fmt, parsed_data, data_idx
 
@@ -612,7 +621,7 @@ def _parse_heuristic_string_byte(data):
     while data_idx < len(data):
         string, cont_idx = _get_unicode_string(data, data_idx, check_string_marker=True)
         if string is None:
-            data_out.append(_struct.unpack('<B',data[data_idx:data_idx+1])[0])
+            data_out.append(_unpack1('B',data[data_idx:data_idx+1]))
             data_idx += 1
             fmt_out += 'B'
         else:
