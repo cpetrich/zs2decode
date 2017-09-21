@@ -718,7 +718,7 @@ def _parse_record_data_ee11_formats_Entry(data, debug=False):
     if not success or len(residual):
         raise ValueError('Internal parser error in <Entry>: %r' % data)
 
-    return parsed_data, parsed_fmt
+    return parsed_data, u'EE11-%s' % parsed_fmt
     ##############################################################
 
     if (len(data)<1) or _ord(data[0]) != 0x02: return data, 'EE11' # unknown format
