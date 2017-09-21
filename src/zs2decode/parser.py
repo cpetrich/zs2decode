@@ -144,7 +144,7 @@ def get_data_stream_hex_dump(data_stream, start, rows=4, bytes_per_row=16):
 
 def _has_file_marker(data_stream):
     """Check data stream for 0xDEADBEAF file marker"""
-    file_marker = _struct.pack("<L", 0xdeadbeaf)
+    file_marker = _struct.pack("<"+_fmt_map['L'], 0xdeadbeaf)
     return data_stream.startswith(file_marker)
 
 def _has_extended_header(data_stream):
