@@ -15,7 +15,7 @@ This document records all notable changes to ``zs2decode``.
 * Chunk names affected by character substitution are now maintained in XML files in the ``name`` attribute.
 * Added functionality to encode XML files to zs2.
 * Improved platform independence with respect to integer byte lengths.
-* Output of audit log decoder has been made more basic to be compatible with syntax fo EE11 QS_ chunks.
+* Output of audit log decoder has been made more basic to be compatible with syntax fo EE11 ``QS_`` chunks.
 
 `0.2.1-dev` (unreleased)
 -------------------------
