@@ -7,10 +7,12 @@ python:
 - '3.6'
 - pypy
 - nightly
+
 install:
 - pip install tox-travis
 - pip install twine
 - python setup.py install
+
 script: tox
 
 after_success:
