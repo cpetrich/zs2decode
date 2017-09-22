@@ -131,7 +131,7 @@ An example of a chunk with chunk type name ``ID`` would be:
 
 Chunk type naming
 ^^^^^^^^^^^^^^^^^
-Chunk type names are ASCII strings defined in 
+Chunk type names are Pascal ShortString-style ASCII strings defined in
 Section :ref:`section-ascii-string-definition`.
 Chunk types names are chosen to be readable ASCII text, 
 comprising mostly of underscore (``_``),
