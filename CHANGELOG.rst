@@ -4,8 +4,8 @@ Changelog
 
 This document records all notable changes to ``zs2decode``.
 
-`0.3.0-dev` (unreleased)
--------------------------
+`0.3.0` (2017-09-22)
+---------------------
 
 * Refactored parsing of data in ``QS_`` chunks (0xEE sub-type 0x0011) to be more general. The format code lost its prominent status, affecting the structure of type and format signatures in the output. There is no syntax for unparsed data anymore.
 * Utility functions return bytes/bytearray to avoid double-UTF8 encoding of strings.
