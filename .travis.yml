@@ -18,7 +18,7 @@ deploy:
   on:
     branch: master
     tags: true
-    condition: $TRAVIS_PYTHON_VERSION == "3.6"
+    condition: $TRAVIS_PYTHON_VERSION == "3.4"
 
   provider: pypi
   server: https://test.pypi.org/legacy/
@@ -29,4 +29,4 @@ deploy:
   on:
     branch: master
     tags: false
-    condition: $TRAVIS_PYTHON_VERSION == "3.6"
+    condition: $TRAVIS_PYTHON_VERSION == "3.4"
