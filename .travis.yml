@@ -16,4 +16,4 @@ install:
 script: tox
 
 after_success:
-- test "${TRAVIS_PYTHON_VERSION}" == "3.6" && test "${TRAVIS_PULL_REQUEST}" == "false" && test "${TRAVIS_TAG}" == "" && python setup.py sdist && python setup.py bdist_wheel --universal && twine upload -u ${TEST_USERNAME} -p ${TEST_PASSWORD} -r https://test.pypi.org/legacy/  dist/*.*
+- test "${TRAVIS_PYTHON_VERSION}" == "3.6" && test "${TRAVIS_PULL_REQUEST}" == "false" && test "${TRAVIS_TAG}" == "" && python setup.py sdist && python setup.py bdist_wheel --universal && twine upload -u ${TEST_USERNAME} -p ${TEST_PASSWORD} --repository https://test.pypi.org/legacy/ --repository-url https://test.pypi.org/legacy/  dist/*.*

@@ -1,5 +1,5 @@
 
-__version__ = "0.3.1-dev"
+__version__ = "0.3.1-dev1"
 
 __title__ = "zs2decode"
 __description__ = "read Zwick zs2 and zp2 files"
