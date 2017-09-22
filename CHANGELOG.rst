@@ -4,6 +4,11 @@ Changelog
 
 This document records all notable changes to ``zs2decode``.
 
+`0.3.1-dev` (unreleased)
+------------------------
+
+* nothing yet
+
 `0.3.0` (2017-09-22)
 ---------------------
 
