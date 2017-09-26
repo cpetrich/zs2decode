@@ -4,10 +4,10 @@ Changelog
 
 This document records all notable changes to ``zs2decode``.
 
-`0.3.1-dev` (unreleased)
+`0.3.1` (2017-09-26)
 ------------------------
 
-* nothing yet
+* Updated documentation of chunks with data type 0xEE, sub-type 0x0011 to correspond to the way the parser works since 0.3.0.
 
 `0.3.0` (2017-09-22)
 ---------------------
