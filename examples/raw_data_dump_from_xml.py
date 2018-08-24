@@ -139,10 +139,12 @@ if __name__=='__main__':
             print('  no data channels --> skipping')
             continue
         channels.sort()
-        channels.remove(data[sample_name]['time_channel_ID'])
-        channels.insert(0,data[sample_name]['time_channel_ID'])
+        if data[sample_name]['time_channel_ID'] in channels:
+            # data[sample_name]['time_channel_ID'] could be None
+            channels.remove(data[sample_name]['time_channel_ID'])
+            channels.insert(0,data[sample_name]['time_channel_ID'])
 
-        N=len(data[sample_name]['channel_data'][data[sample_name]['time_channel_ID']]['data'])
+        N=len(data[sample_name]['channel_data'][channels[0]]['data'])
 
         fn_out = fn_out_pattern % sample_name
         out = []
