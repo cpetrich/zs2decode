@@ -1,6 +1,6 @@
 """Extract zs2 time series data from XML file."""
 
-# written by Chris Petrich, 2015-2017
+# written by Chris Petrich, 2015-2018
 # License: MIT
 
 import xml.etree.ElementTree as ET
@@ -148,9 +148,9 @@ if __name__=='__main__':
 
         fn_out = fn_out_pattern % sample_name
         out = []
-        line = '\t'.join(['"'+str(channel_names[channel])+'"' for channel in channels])
+        line = '\t'.join(['"%s"' % channel_names[channel] for channel in channels])
         out.append(line)
-        line = '\t'.join([str(channel) for channel in channels])
+        line = '\t'.join(['%s' % channel for channel in channels])
         out.append(line)
         for row in range(N):
             line=[]
