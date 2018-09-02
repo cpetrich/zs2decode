@@ -12,8 +12,8 @@ PACKAGES = find_packages(where="src")
 META_PATH = os.path.join("src", "zs2decode", "__init__.py")
 KEYWORDS = ["file format", ]
 CLASSIFIERS = [
-    "Development Status :: 3 - Alpha",
-    "Intended Audience :: Developers",
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Science/Research",
     "Natural Language :: English",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
@@ -21,11 +21,11 @@ CLASSIFIERS = [
     "Programming Language :: Python :: 2",    
     "Programming Language :: Python :: 2.7",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.3",
     "Programming Language :: Python :: 3.4",
     "Programming Language :: Python :: 3.5",
-	"Programming Language :: Python :: 3.6",
-	"Programming Language :: Python :: Implementation :: PyPy",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: Implementation :: PyPy",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 INSTALL_REQUIRES = []
