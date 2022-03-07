@@ -25,7 +25,7 @@ The following script converts a ``zs2`` file into XML::
     # convert binary chunk data into lists of Python objects
     chunks = zs2decode.parser.parse_chunks(raw_chunks)
     # output as text file
-    with open(xml_dump_file, 'wb') as f:
+    with open(xml_output_file, 'wb') as f:
         f.write( zs2decode.util.chunks_to_XML(chunks) )
 
 
