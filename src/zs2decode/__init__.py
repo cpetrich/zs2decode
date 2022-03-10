@@ -9,4 +9,4 @@ __author__ = "Chris Petrich"
 __email__ = "cpetrich@users.noreply.github.com"
 
 __license__ = "MIT"
-__copyright__ = "Copyright (C) 2015-2017 Chris Petrich"
+__copyright__ = "Copyright (C) 2015-2022 Chris Petrich"
