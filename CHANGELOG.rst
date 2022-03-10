@@ -4,6 +4,11 @@ Changelog
 
 This document records all notable changes to ``zs2decode``.
 
+`0.3.2-dev` (unreleased)
+------------------------
+
+* Changed format code of QS_ValPar to recognize two lists (which are ususally empty), cf. Issue #8
+
 `0.3.1` (2017-09-26)
 ------------------------
 

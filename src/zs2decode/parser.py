@@ -4,7 +4,7 @@ import gzip as _gzip
 import struct as _struct
 
 # Author: Chris Petrich
-# Copyright: Copyright 2015,2016,2017, Chris Petrich
+# Copyright: Copyright 2015-2022, Chris Petrich
 # License: MIT
 
 #####################################
@@ -677,7 +677,7 @@ def _parse_record(grammar, data, strict_unsigned = None):
 
 def _parse_record_data_ee11_formats_QS(name, data, debug=False):
     fmt={'QS_Par':['B=1:B4B'],
-         'QS_ValPar':['B=1:BdSH9B'],
+         'QS_ValPar':['B=1:BdSH(d)(B)B'],
          'QS_TextPar':['B=1:B4S'],
          'QS_SelPar':['B=2:BL(L)4S'],
          'QS_ValArrPar':['B=2:BSHB(L)'],
