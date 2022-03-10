@@ -8,9 +8,9 @@ Chunks with data of type ``0xEE`` and sub-type ``0x0011``
 contain data organized as a `record`_.
 
 Chunk type-specific data structures are used by the
-event audit system to store the event log, 
-and by the `ZIMT scripting language`_ to store 
-properties and parameters of variables. This record format 
+event audit system to store the event log,
+and by the `ZIMT scripting language`_ to store
+properties and parameters of variables. This record format
 appears to be indicated by one or more values in record data
 (one of them being the first byte of the record data).
 The record formats of the chunk types given here are guesses.
@@ -21,7 +21,7 @@ The record formats of the chunk types given here are guesses.
  | type   |                                                                                         |
  +        +--------+--------+--------+--------+--------+--------+--------+--------+--------+--------+
  |        | Sub-type        | Byte length of                    | Record data                       |
- |        |                 | and record data                   |                                   | 
+ |        |                 | and record data                   |                                   |
  +========+========+========+========+========+========+========+========+========+========+========+
  | 0      | 1      | 2      | 3      | 4      | 5      | 6      | 7      | 8      | ...    | n      |
  +--------+--------+--------+--------+--------+--------+--------+--------+--------+--------+--------+
@@ -56,10 +56,10 @@ list
   variable-length data list (see :ref:`section-data-list-definition`)
 tuple
   ordered group of values
- 
+
 ZIMT property chunks
 ^^^^^^^^^^^^^^^^^^^^
- 
+
  +---------------------+------------------------------------------------------------------+
  |Chunk type name      |Record data                                                       |
  +                     +------+-----------------------------------------------------------+
@@ -73,7 +73,7 @@ ZIMT property chunks
  +                     +------+-----------------------------------------------------------+
  |                     | 1    | byte (boolean)                                            |
  +---------------------+------+-----------------------------------------------------------+
-  
+
  +---------------------+------+-----------------------------------------------------------+
  |Chunk type name      |Record data                                                       |
  +                     +------+-----------------------------------------------------------+
@@ -85,13 +85,13 @@ ZIMT property chunks
  +                     +------+-----------------------------------------------------------+
  |                     | 1    | string                                                    |
  +                     +------+-----------------------------------------------------------+
- |                     | 1    | word                                                      | 
+ |                     | 1    | word                                                      |
  +                     +------+-----------------------------------------------------------+
- |                     | 9    | byte ``0x00``                                             | 
+ |                     | 9    | byte ``0x00``                                             |
  +---------------------+------+-----------------------------------------------------------+
  |                     || Record contains value, unit, and ID.                            |
  +---------------------+------+-----------------------------------------------------------+
- 
+
  +---------------------+------+-----------------------------------------------------------+
  |Chunk type name      |Record data                                                       |
  +                     +------+-----------------------------------------------------------+
@@ -162,7 +162,7 @@ ZIMT property chunks
  +                     +------+-----------------------------------------------------------+
  |                     | 1    | list of longs                                             |
  +                     +------+-----------------------------------------------------------+
- |                     | 1    | byte                                                      | 
+ |                     | 1    | byte                                                      |
  +---------------------+------+-----------------------------------------------------------+
 
 ZIMT parameter chunks
@@ -182,17 +182,17 @@ ZIMT parameter chunks
  |                     | 9    | string                                                    |
  +                     +------+-----------------------------------------------------------+
  |                     | 3    | word                                                      |
- +                     +------+-----------------------------------------------------------+ 
+ +                     +------+-----------------------------------------------------------+
  |                     | 5    | string                                                    |
  +                     +------+-----------------------------------------------------------+
  |                     | 1    | long ``0x00000000``                                       |
  +                     +------+-----------------------------------------------------------+
  |                     | 2    | word                                                      |
- +                     +------+-----------------------------------------------------------+ 
+ +                     +------+-----------------------------------------------------------+
  |                     | 1    | byte                                                      |
- +                     +------+-----------------------------------------------------------+ 
+ +                     +------+-----------------------------------------------------------+
  |                     | 1    | string                                                    |
- +                     +------+-----------------------------------------------------------+ 
+ +                     +------+-----------------------------------------------------------+
  |                     | 4    | byte (boolean)                                            |
  +---------------------+------+-----------------------------------------------------------+
  |                     || Bytes 6 and 9 seem to always be ``0x00``.                       |
@@ -216,7 +216,7 @@ or
  |                     | 9    | string                                                    |
  +                     +------+-----------------------------------------------------------+
  |                     | 3    | word                                                      |
- +                     +------+-----------------------------------------------------------+ 
+ +                     +------+-----------------------------------------------------------+
  |                     | 5    | string                                                    |
  +                     +------+-----------------------------------------------------------+
  |                     | 1    | long ``0x00000002``                                       |
@@ -224,11 +224,11 @@ or
  |                     | 2    | word                                                      |
  +                     +------+-----------------------------------------------------------+
  |                     | 1    | byte                                                      |
- +                     +------+-----------------------------------------------------------+ 
+ +                     +------+-----------------------------------------------------------+
  |                     | 1    | long                                                      |
- +                     +------+-----------------------------------------------------------+ 
+ +                     +------+-----------------------------------------------------------+
  |                     | 1    | string                                                    |
- +                     +------+-----------------------------------------------------------+ 
+ +                     +------+-----------------------------------------------------------+
  |                     | 4    | byte (boolean)                                            |
  +---------------------+------+-----------------------------------------------------------+
  |                     || The last 4 bytes are ``0x00``, ``0x01``, ``0x00``, ``0x01``.    |
@@ -261,7 +261,7 @@ or
  +---------------------+------+-----------------------------------------------------------+
  |                     || The last byte is ``0x01``                                       |
  +---------------------+------+-----------------------------------------------------------+
- 
+
  +---------------------+------+-----------------------------------------------------------+
  |Chunk type name      |Record data                                                       |
  +                     +------+-----------------------------------------------------------+
@@ -273,17 +273,17 @@ or
  +                     +------+-----------------------------------------------------------+
  |                     | 1    | list of 4 strings                                         |
  +                     +------+-----------------------------------------------------------+
- |                     | 1    | list of 4 strings                                         | 
+ |                     | 1    | list of 4 strings                                         |
  +                     +------+-----------------------------------------------------------+
- |                     | 1    | list of strings                                           | 
+ |                     | 1    | list of strings                                           |
  +                     +------+-----------------------------------------------------------+
- |                     | 1    | list of strings                                           | 
+ |                     | 1    | list of strings                                           |
  +                     +------+-----------------------------------------------------------+
- |                     | 1    | list of words                                             | 
+ |                     | 1    | list of words                                             |
  +                     +------+-----------------------------------------------------------+
- |                     | 1    | list of longs                                             | 
+ |                     | 1    | list of longs                                             |
  +                     +------+-----------------------------------------------------------+
- |                     | 1    | list of strings                                           | 
+ |                     | 1    | list of strings                                           |
  +---------------------+------+-----------------------------------------------------------+
  |                     || Record data may end after the first three bytes.                |
  |                     || If present, all lists are of the same length.                   |
@@ -352,7 +352,7 @@ or
  |                     || If not empty, the list of words contains ID values.             |
  |                     || If not empty, the last string contains a variable name.         |
  +---------------------+------+-----------------------------------------------------------+
- 
+
  +---------------------+------------------------------------------------------------------+
  |Chunk type name      |Record data                                                       |
  +                     +------+-----------------------------------------------------------+
@@ -416,25 +416,25 @@ or
 
 Event audit chunk
 -----------------
-The event audit log is stored in a chunk type with name 
+The event audit log is stored in a chunk type with name
 ``Entry``.  The description below represents the parsing
-algorithm used before version 0.3.0. In the current 
-implementation, the chunk is parsed heuristically as bytes 
+algorithm used before version 0.3.0. In the current
+implementation, the chunk is parsed heuristically as bytes
 and strings.
 
 [START OBSOLETE DESCRIPTION]
 
 The first byte of the record (i.e., format code)
-corresponding to the description here is 
-``0x02``. A large number of Entry--Record-Format-Codes 
+corresponding to the description here is
+``0x02``. A large number of Entry--Record-Format-Codes
 (ERFC) and associated records are defined.
-However, it appears to be possible to split the 
-record data into its constituents without interpreting the 
-format code explicitly. 
-The procedure is described in the 
+However, it appears to be possible to split the
+record data into its constituents without interpreting the
+format code explicitly.
+The procedure is described in the
 Section :ref:`section-entry-parsing`.
 
-In addition to strings, the following prefixed data types 
+In addition to strings, the following prefixed data types
 are defined that are specific to ``Entry`` chunks:
 
  +--------+---------+----------------+--------------+
@@ -469,8 +469,8 @@ as follows:
  |``0xEE``|``0x11``|``0x00``|``LSB`` |        |        |``MSB`` |``0x02``|        |        |        |        |        |
  +--------+--------+--------+--------+--------+--------+--------+--------+--------+--------+--------+--------+--------+
 
- 
- 
+
+
 .. _section-entry-parsing:
 
 Parsing algorithm
@@ -489,7 +489,7 @@ evaluating the ERFC code.
  4. If string follows: interpret and output string, continue at 3.
  5. If the next byte belongs to a prefixed data type and another
     prefixed data type or string follows the current data block:
-    interpret prefixed data type and output, 
+    interpret prefixed data type and output,
     continue at 3.
  6. If another prefixed data type or string follows 4 bytes later:
     interpret 4 bytes as 2 words and output, continue at 3.
@@ -505,16 +505,16 @@ verify that either the end of the string is reached **or**
    by ``0x00`` ``0x80``, indicating strings, **and**
 2. that the following number of bytes is sufficient to hold
    the entire prefixed data type or string.
-   
-The purpose of the follow-up test is to prevent the detection of 
+  
+The purpose of the follow-up test is to prevent the detection of
 spurious unicode string markers ``LSB`` ``MSB`` ``0x00`` ``0x80``
-in the binary prepresentation of double-precision floating point 
+in the binary prepresentation of double-precision floating point
 numbers.
 
 Interpretation
 ^^^^^^^^^^^^^^
 Each ``Entry`` record begins with a common header, followed by a
-detailed, entry-specific record. The common header contains the 
+detailed, entry-specific record. The common header contains the
 following entries:
 
 1. Entry-record-format-code
