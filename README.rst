@@ -5,7 +5,7 @@ zs2decode
     :target: https://travis-ci.org/cpetrich/zs2decode
 
 zs2decode is a Python (2.7, 3.4 - 3.10) implementation of a
-decoder for Zwick ``zs2`` files.
+decoder for Zwick *testXpert II* ``zs2`` files.
 
 ``zs2`` files contain measurements and meta data. zs2decode is able to
 parse these files. It contains support functions to output the result as
