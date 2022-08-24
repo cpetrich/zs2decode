@@ -4,6 +4,12 @@ Changelog
 
 This document records all notable changes to ``zs2decode``.
 
+`0.3.3-dev` (unreleased)
+------------------------
+
+* Added chunk type code 0x00 emitted by testXpert III, cf. Issue #10
+* Fix: Parse escapes in 0xDD section descriptors during encoding
+
 `0.3.2-dev` (unreleased)
 ------------------------
 
