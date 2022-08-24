@@ -89,6 +89,8 @@ def data_stream_to_chunks(data_stream, start=0, debug=False):
                 next_start = _skip_past_data_ee(data_stream, cont)
             elif data_type == 0xaa:
                 next_start = _skip_past_data_aa(data_stream, cont)
+            elif data_type == 0x00:
+                next_start = _skip_past_data_00(data_stream, cont)
             elif data_type == 0xdd:
                 next_start = _skip_past_data_dd(data_stream, cont)
             else:
@@ -192,6 +194,16 @@ def _skip_past_data_aa(data_stream, start):
     byte_length = char_count * 2
     return start+5+byte_length
 
+def _skip_past_data_00(data_stream, start):
+    """Minimal validation and skip past chunk data"""
+    if ((_ord(data_stream[start])!=0x00) or
+        (not _is_bit31_set(data_stream, start+1))):
+        raise TypeError('Unexpected block format for 0x00 (0x%x) with length and string marker 0x%08x at 0x%x.' % (
+            _ord(data_stream[start]), _unpack1('L',data_stream[start+1:start+5]), start))
+    char_count = _unpack1('L',data_stream[start+1:start+5]) & 0x7FFFFFFF
+    byte_length = char_count * 2
+    return start+5+byte_length
+
 def _skip_past_data_ee(data_stream, start):
     """Validate and skip past chunk data"""
     if _ord(data_stream[start])!=0xEE:
@@ -288,6 +300,7 @@ def parse_chunks(chunks, level=None, debug=False):
 def _parse_chunk_types(chunks):
     """Decode element data"""
     dispatch={
+            0x00: _parse_data_00,
             0x11: _parse_data_11,
             0x22: _parse_data_22,
             0x33: _parse_data_33,
@@ -360,6 +373,7 @@ def _parse_chunk_ee11_data_records(chunks, debug=False):
 #   parse data types
 #
 
+_parse_data_00 = lambda data: (_get_unicode_string(data,1)[0],'00') if _ord(data[0])==0x00 else (None, None)
 _parse_data_11 = lambda data: (_unpack1('l',data[1:]),'11') if _ord(data[0])==0x11 else (None, None) # hex number (e.g. color), also can be 0xffffffff for -1 (n.d.), or counter number (decimal), signed index (-1 for not defined)
 _parse_data_22 = lambda data: (_unpack1('L',data[1:]),'22') if _ord(data[0])==0x22 else (None, None) # Value
 _parse_data_33 = lambda data: (_unpack1('l', data[1:]),'33') if _ord(data[0])==0x33 else (None, None) # prob int -- screen coords, also sometimes negative
