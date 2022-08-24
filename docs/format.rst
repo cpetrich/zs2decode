@@ -173,8 +173,8 @@ Beyond that, chunk order seems to be free but follows predictable,
 machine-generated patterns.
 
 .. note:: The actual degree of flexibility in chunk ordering is defined
-          by the implementation of the ``textXpert II`` parser, which is
-          not known.
+          by the implementation of the ``textXpert II`` and 
+	  ``testXpert III`` parsers, which is not known.
 		  
 End-of-Section chunks
 ^^^^^^^^^^^^^^^^^^^^^
@@ -203,6 +203,8 @@ The following type codes exist:
  | Data type | Length of  | Type of data                           |
  | code      | chunk data |                                        |
  +===========+============+========================================+
+ | ``0x00``  | at least 4 | Unicode string [#aaee]_ [#purp00]_     |
+ +-----------+------------+----------------------------------------+
  | ``0x11``  |          4 | Integer [#intdef]_                     |
  +-----------+------------+----------------------------------------+
  | ``0x22``  |          4 | Unsigned integer: value                |
@@ -230,7 +232,7 @@ The following type codes exist:
  | ``0xEE``  | at least 6 | List of data [#aaee]_                  |
  +-----------+------------+----------------------------------------+
 
-Data types ``0x00``, ``0x77``, and ``0xFF`` do not appear.
+Data types ``0x77`` and ``0xFF`` do not appear.
 
 .. [#intdef]  The interpretation of integers of data type codes 
               ``0x11``, ``0x55`` and ``0x66`` depends on context. 
@@ -244,9 +246,9 @@ Data types ``0x00``, ``0x77``, and ``0xFF`` do not appear.
               as signed ``-1`` rather than unsigned ``4294967295``).
 
 .. [#aaee]  The length of the chunk data field for data types 
-            ``0xAA`` and ``0xEE`` is encoded as part of the 
-            chunk data. See also Section
-            :ref:`section-data-list-definition`.
+            ``0x00``, ``0xAA``, and ``0xEE`` is encoded as part of
+            the chunk data. See also
+            Section :ref:`section-data-list-definition`.
 
 .. [#ddtype]  Data type ``0xDD`` indicates that a chunk marks the 
               beginning of a structural or logical **section**. 
@@ -256,13 +258,18 @@ Data types ``0x00``, ``0x77``, and ``0xFF`` do not appear.
               that may be empty 
               (see Section :ref:`section-ascii-string-definition`).
 
+.. [#purp00]  Data type ``0x00`` is used to store either strings
+              or numerical values encoded as strings.
+	      Apparently introduced in ``testXpert III`` to extend
+	      capabilities of ``testXpert II``.
+
 Chunk data
 ----------
 
 Data values
 ^^^^^^^^^^^
-The chunk data section of all data types except ``0xAA``, ``0xDD``,
-and ``0xEE`` contains one numerical or boolean value.
+The chunk data section of all data types except ``0x00``, ``0xAA``,
+``0xDD``, and ``0xEE`` contains one numerical or boolean value.
 
 In multi-byte data sections, data are arranged ``LSB`` to ``MSB``
 and interpreted according to the table on data type codes.
@@ -395,9 +402,9 @@ For example, the Norwegian interjection *Skål* would be represented as
 .. _UCS-2/UTF-16: https://en.wikipedia.org/wiki/UTF-16
 
 
-Data type ``0xAA``
-^^^^^^^^^^^^^^^^^^
-Chunk data of chunks with data type ``0xAA`` contain exactly 
+Data types ``0x00`` and ``0xAA``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Chunk data of chunks with data type ``0x00`` and ``0xAA`` contain exactly 
 one unicode string (see Section :ref:`section-data-list-definition`).
 For example, data type code and chunk data of the string "Hi" would be:
 
