@@ -10,7 +10,7 @@ import zs2decode.parser as _parser
 import zs2decode.util as _util
 
 # Author: Chris Petrich
-# Copyright 2017, Chris Petrich
+# Copyright 2017-2022, Chris Petrich
 # License: MIT
 
 ######################################
@@ -68,9 +68,7 @@ def make_chunk_list(root):
         chunk_name = root.nodeName
     data_type = root.attributes['type'].value
     data_value_str = root.attributes['value'].value
-    if data_type.upper() in ('DD',):
-        data_value = data_value_str
-    elif data_type.upper() in ('AA',):
+    if data_type.upper() in ('AA','00','DD'):
         data_value = _json.loads('"%s"' % data_value_str)        
     else:        
         data_value = _json.loads(data_value_str)        
@@ -223,7 +221,8 @@ _pack1 = lambda f,v: bytearray(_struct.pack('<'+_parser._fmt_map[f],v))
     
 def _encode_data(type, value):
     chunk_type = bytearray.fromhex(type[:2])
-    if type == '11': payload = _pack1('l',value)
+    if type == '00': payload = _make_Unicode_string(value)
+    elif type == '11': payload = _pack1('l',value)
     elif type == '22': payload = _pack1('L',value)
     elif type == '33': payload = _pack1('l',value)
     elif type == '44': payload = _pack1('L',value)
