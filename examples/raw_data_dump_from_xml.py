@@ -1,6 +1,6 @@
 """Extract zs2 time series data from XML file."""
 
-# written by Chris Petrich, 2015-2018
+# written by Chris Petrich, 2015-2022
 # License: MIT
 
 import xml.etree.ElementTree as ET
@@ -55,7 +55,9 @@ if __name__=='__main__':
 
         is_short = IndexTimeChannel is not None
 
+    #is_short = False # if there is a problem, check if uncommenting this line solves that problem
     if is_short:
+        print("(NB: if this doesn't work, try setting is_short=False)")
         xml_data = root.find('./Body/batch/Series')
         data={}
         xml_samples = _get_list_elements(xml_data, './SeriesElements/')
