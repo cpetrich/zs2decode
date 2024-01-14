@@ -1,9 +1,6 @@
 zs2decode
 #########
 
-.. image:: https://travis-ci.org/cpetrich/zs2decode.svg?branch=master
-    :target: https://travis-ci.org/cpetrich/zs2decode
-
 zs2decode is a Python (2.7, 3.4 - 3.10) implementation of a
 decoder for Zwick ``zs2`` files.
 
