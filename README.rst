@@ -1,7 +1,7 @@
 zs2decode
 #########
 
-zs2decode is a Python (2.7, 3.4 - 3.10) implementation of a
+zs2decode is a Python (2.7, 3.4 - current) implementation of a
 decoder for Zwick ``zs2`` files.
 
 ``zs2`` files contain measurements and meta data. zs2decode is able to
