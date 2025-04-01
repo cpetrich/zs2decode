@@ -8,5 +8,5 @@ __uri__ = "https://zs2decode.readthedocs.org/"
 __author__ = "Chris Petrich"
 __email__ = "cpetrich@users.noreply.github.com"
 
-__license__ = "MIT License"
+__license__ = "MIT"
 __copyright__ = "Copyright (C) 2015-2025 Chris Petrich"
