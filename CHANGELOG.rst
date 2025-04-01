@@ -4,13 +4,19 @@ Changelog
 
 This document records all notable changes to ``zs2decode``.
 
-`0.3.3-dev` (unreleased)
+`0.3.3` (2025-04-01)
+------------------------
+
+* Release `0.3.3-dev` unchanged
+
+
+`0.3.3-dev` (unreleased, 2022-08-24)
 ------------------------
 
 * Added chunk type code 0x00 emitted by testXpert III, cf. Issue #10
 * Fix: Parse escapes in 0xDD section descriptors during encoding
 
-`0.3.2-dev` (unreleased)
+`0.3.2-dev` (unreleased, 2022-03-10)
 ------------------------
 
 * Changed format code of QS_ValPar to recognize two lists (which are ususally empty), cf. Issue #8
